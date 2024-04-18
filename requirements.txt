@@ -1,0 +1,8 @@
+numpy
+matplotlib
+plotly
+scikit-learn
+scipy
+sympy
+serial
+pyserial
