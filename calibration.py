@@ -3,13 +3,16 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import re
+from matplotlib import colors as colors_css
 from pathlib import Path
-from scipy.signal import savgol_filter, find_peaks
+from scipy.signal import savgol_filter
+from scipy.interpolate import *
+
 
 SEP = os.path.sep
 PATH = "cal_12"+SEP+"SWV"
-N_DP = 100 #number of data points to use for low and high average
-diffFunc = lambda a, b: a-b
+N_DP = 10 #number of data points to use for low and high average
+diffFunc = lambda a, b: a/b
 
 class Calibration: 
 
@@ -18,17 +21,31 @@ class Calibration:
         self.points_normalized = []
         self.results = []
 
-    def calculatePolynomial(self, Is, labels, deg):
+    def polynAmpDiff(self, Xs, labels, deg):
         self.labels = np.array(labels)
-        I_top, I_bottom = zip(*[getAvgMinMax(I) for I in Is])
+        I_top, I_bottom = zip(*[getAvgMinMax(I) for I in Xs])
         I_top, I_bottom = np.array(I_top), np.array(I_bottom)
         F = np.vectorize(diffFunc) # change here to t/b to try relevant difference
         self.x = F(I_top, I_bottom)
         self.x_max, self.x_min = np.max(self.x), np.min(self.x)
         self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
+        # combined = sorted(zip(self.x_norm, self.labels), key=lambda pair: pair[0])
+        # sorted_x_norm, sorted_labels = zip(*combined)
+        # sorted_x_norm = np.array(sorted_x_norm)
+        # sorted_labels = np.array(sorted_labels)
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
+        # self.polyn = interp1d(sorted_x_norm, sorted_labels, kind='linear')
     
+    def polynNoizeAmpl(self, Xs, labels, deg):
+        self.labels = labels
+        self.x = np.array(list(map(np.average, Xs)))
+        self.x_max, self.x_min = np.max(self.x), np.min(self.x)
+        self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
+        self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
+        self.polyn = np.poly1d(self.coeff)
+
+
     def calculateConcentration(self, Is):
         t, b = getAvgMinMax(Is)
         self.points.append(diffFunc(t, b))
@@ -36,6 +53,7 @@ class Calibration:
         res = self.polyn(self.points_normalized[len(self.points_normalized)-1])   
         self.results.append(res) 
         return res    
+
     
     def plotCalibAndPoints(self):
         """
@@ -48,7 +66,7 @@ class Calibration:
         plt.scatter(self.x_norm, self.labels, color='blue', label='Calibration Data')
     
         # Plot concentration data
-        plt.scatter(self.points_normalized, self.results, color='red', label='Concentration Data')
+        # plt.scatter(self.points_normalized, self.results, color='red', label='Concentration Data')
         
         # Generate a range of x values
         x_range = np.linspace(self.x_min, self.x_max, 100)
@@ -58,7 +76,7 @@ class Calibration:
         y_range = self.polyn(x_range_norm)
         
         # Plot the polynomial line
-        plt.plot(x_range_norm, y_range, color='green', label='Polynomial Fit')
+        # plt.plot(x_range_norm, y_range, color='green', label='Polynomial Fit')
         
         # Adding labels and legend
         plt.xlabel('Normalized signal')
@@ -66,7 +84,12 @@ class Calibration:
         plt.title('Calibration and Concentration Plot')
         plt.legend()
 
-
+def getNoizeAmplitude(I):
+    WINDOW = 10
+    noize_amp = []
+    for i in range(0, len(I)):
+        noize_amp.append(np.std(I[i:i+WINDOW]))
+    return np.array(noize_amp)
 
 
 def getLables(line, n):
@@ -75,7 +98,7 @@ def getLables(line, n):
     matched by "sample <LABEL>:"
     """
     labels = []
-    pattern = r"sample ?((\d+)(.\d+)?):"
+    pattern = r"sample:? ?((\d+)(.\d+)?):?"
     for i in range(0, n):
         match = re.search(pattern, line[i*2])
         if (match):
@@ -144,6 +167,7 @@ def getData(filePath: str, Volts, Curr, inval, labels):
         
 def plotData(V, I, inv, labels):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    # colors = list(colors_css.CSS4_COLORS.keys())
 
     plt.figure(figsize=(16, 9))
     for i in range(len(V)):
@@ -159,18 +183,17 @@ if __name__ == "__main__":
     c = Calibration()
     V, I, inv, labels = [], [], [], []
     mapOverFolder("csv_files", getData, V, I, inv, labels)
-
-    plotData(V, I, inv, labels)
+    noize = list(map(getNoizeAmplitude, I))
+    # plotData(V, I, inv, labels)
     I_filt = []
     for I_e in I:
         I_filt.append(savgol_filter(I_e, 101, 2))
-    peaksInd = []
-
-    c.calculatePolynomial(I_filt, labels, 2)
+    c.polynAmpDiff(I_filt, labels, 1)
+    # c.polynNoizeAmpl(noize, labels, 1)
+    c.plotCalibAndPoints()
     for i in range(0, len(labels)):
         print(f"exp: {labels[i]}\tgot: {c.calculateConcentration(I_filt[i])}")
 
-    plotData(V, I_filt, inv, labels)
-    c.plotCalibAndPoints()
+    plotData(V, noize, inv, labels)
     plt.show()
     
