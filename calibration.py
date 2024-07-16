@@ -12,7 +12,7 @@ from scipy.interpolate import *
 SEP = os.path.sep
 PATH = "cal_12"+SEP+"SWV"
 N_DP = 10 #number of data points to use for low and high average
-diffFunc = lambda a, b: a/b
+diffFunc = lambda a, b: a-b
 
 class Calibration: 
 
@@ -29,13 +29,8 @@ class Calibration:
         self.x = F(I_top, I_bottom)
         self.x_max, self.x_min = np.max(self.x), np.min(self.x)
         self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
-        # combined = sorted(zip(self.x_norm, self.labels), key=lambda pair: pair[0])
-        # sorted_x_norm, sorted_labels = zip(*combined)
-        # sorted_x_norm = np.array(sorted_x_norm)
-        # sorted_labels = np.array(sorted_labels)
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
-        # self.polyn = interp1d(sorted_x_norm, sorted_labels, kind='linear')
     
     def polynNoizeAmpl(self, Xs, labels, deg):
         self.labels = labels
@@ -44,7 +39,6 @@ class Calibration:
         self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
-
 
     def calculateConcentration(self, Is):
         t, b = getAvgMinMax(Is)
@@ -99,6 +93,7 @@ def getLables(line, n):
     """
     labels = []
     pattern = r"sample:? ?((\d+)(.\d+)?):?"
+    # pattern = r"hip ?(\d+)"
     for i in range(0, n):
         match = re.search(pattern, line[i*2])
         if (match):
@@ -185,9 +180,8 @@ if __name__ == "__main__":
     mapOverFolder("csv_files", getData, V, I, inv, labels)
     noize = list(map(getNoizeAmplitude, I))
     # plotData(V, I, inv, labels)
-    I_filt = []
-    for I_e in I:
-        I_filt.append(savgol_filter(I_e, 101, 2))
+    I_filt = [savgol_filter(i, 101, 2) for i in I]
+    # print(I_filt)
     c.polynAmpDiff(I_filt, labels, 1)
     # c.polynNoizeAmpl(noize, labels, 1)
     c.plotCalibAndPoints()

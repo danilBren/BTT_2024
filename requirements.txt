@@ -3,3 +3,4 @@ numpy
 os
 matplotlib
 scipy
+pyserial
