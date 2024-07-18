@@ -21,30 +21,70 @@ class Calibration:
         self.points_normalized = []
         self.results = []
 
-    def polynAmpDiff(self, Xs, labels, deg):
-        self.labels = np.array(labels)
+    def sortByLabels(self, Xs, labels, chipNum):
+        """
+        sorts list of labels and reorders Xs and chipNum accordingly
+        """
+        sortedInd = np.argsort(labels)
+        self.Xs = [Xs[i] for i in sortedInd]
+        self.chipNums = np.array([chipNum[i] for i in sortedInd])
+        self.labels = np.array([labels[i] for i in sortedInd])
+
+    def makeBaselineMap(self):
+        self.bs_map = {n : 1 for n in self.chipNums}
+        for i in range(0, len(self.chipNums)):
+            if (self.chipNums[i] in self.bs_map and self.labels[i] == 0):
+                if (self.bs_map[self.chipNums[i]] != 1):
+                    print("2 values for baseine")
+                else: 
+                    self.bs_map[self.chipNums[i]] = self.x[i] 
+ 
+
+    def polynAmpDiff(self, Xs, labels, chipNums, deg):
+        # sort lists so that values labelled with 0 are first
+        self.sortByLabels(Xs, labels, chipNums)
+
+        # self.x is an array of differences between top and bottom for each measurement
         I_top, I_bottom = zip(*[getAvgMinMax(I) for I in Xs])
         I_top, I_bottom = np.array(I_top), np.array(I_bottom)
-        F = np.vectorize(diffFunc) # change here to t/b to try relevant difference
+        F = np.vectorize(diffFunc)
         self.x = F(I_top, I_bottom)
+
+        # make a map from chip number to base value measurement
+        self.makeBaselineMap()
+        # for each value divide it by the base value measurement on the same chip
+        print(self.x)
+        print(self.labels)
+        print(self.chipNums)
+        print(self.bs_map)
+        for i in range(0, len(self.x)):
+            if (self.labels[i] != 0):
+                self.x[i] = self.x[i]/(self.bs_map[self.chipNums[i]])
+        print(self.x)
+        # normalzie resulting values for each chip
         self.x_max, self.x_min = np.max(self.x), np.min(self.x)
         self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
+        self.x_norm = self.x
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
     
-    def polynNoizeAmpl(self, Xs, labels, deg):
-        self.labels = labels
+    def polynNoizeAmpl(self, Xs, labels, chinNum, deg):
+        self.sortByLabels(Xs, labels, chipNum)
         self.x = np.array(list(map(np.average, Xs)))
         self.x_max, self.x_min = np.max(self.x), np.min(self.x)
         self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
 
-    def calculateConcentration(self, Is):
+    def calculateConcentration(self, Is, chipNum):
+        """
+        calculates concentration of the sample 
+        and appends it to the list of results
+        """
         t, b = getAvgMinMax(Is)
         self.points.append(diffFunc(t, b))
-        self.points_normalized.append((diffFunc(t, b)-self.x_min)/(self.x_max-self.x_min))
-        res = self.polyn(self.points_normalized[len(self.points_normalized)-1])   
+        self.points_normalized.append((diffFunc(t, b)/(self.bs_map[chipNum])-self.x_min)/(self.x_max-self.x_min))
+        res = self.polyn(self.points[len(self.points)-1])   
         self.results.append(res) 
         return res    
 
@@ -100,6 +140,19 @@ def getLables(line, n):
             labels.append(float(match.group(1)))
     return labels
 
+def getChipNum(line, n):
+    """
+    returns a numpy array of labels in the line
+    matched by "chip <number>:"
+    """
+    chipnum = []
+    pattern = r"hip ?(\d+)"
+    for i in range(0, n):
+        match = re.search(pattern, line[i*2])
+        if (match):
+            chipnum.append(int(match.group(1)))
+    return chipnum
+
 def mapOverFolder(dir: str, func, *args):
     """
     maps function func over all files in dir with arguments args
@@ -118,7 +171,7 @@ def getAvgMinMax(I):
     smallest = np.average(np.partition(I, N_DP)[:N_DP])
     return biggest, smallest
 
-def getData(filePath: str, Volts, Curr, inval, labels):
+def getData(filePath: str, Volts, Curr, inval, labels, chipnum):
     """
     adds voltage and current from the file to Volts and Curr array
     returns indexes of invalid entries
@@ -141,6 +194,8 @@ def getData(filePath: str, Volts, Curr, inval, labels):
         I_list = [[] for _ in range(n)]
         inval_new = []
 
+        for _ in range(40):
+            next(reader)
         for r in reader:
             for i in range(n):
                 try:
@@ -159,16 +214,18 @@ def getData(filePath: str, Volts, Curr, inval, labels):
         Curr += (I)
         inval += inval_new
         labels += getLables(labels_str, n)
+        chipnum += getChipNum(labels_str, n)
         
-def plotData(V, I, inv, labels):
-    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+def plotData(V, I, inv, labels, chipNums):
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
+    # colors = plt.get_cmap('viridis', len(I)*3) 
     # colors = list(colors_css.CSS4_COLORS.keys())
 
     plt.figure(figsize=(16, 9))
     for i in range(len(V)):
         color = colors[i % len(colors)]
         if not i in inv:
-            plt.plot(V[i], I[i], label=labels[i], color=color)
+            plt.plot(V[i], I[i], label=str(labels[i]) + " on chip " + str(chipNums[i]), color=color)
         
     plt.xlabel("Volts")
     plt.ylabel("micraAmp")
@@ -176,18 +233,18 @@ def plotData(V, I, inv, labels):
 
 if __name__ == "__main__":
     c = Calibration()
-    V, I, inv, labels = [], [], [], []
-    mapOverFolder("csv_files", getData, V, I, inv, labels)
+    V, I, inv, labels, chipNum = [], [], [], [], []
+    mapOverFolder("csv_files", getData, V, I, inv, labels, chipNum)
     noize = list(map(getNoizeAmplitude, I))
-    # plotData(V, I, inv, labels)
-    I_filt = [savgol_filter(i, 101, 2) for i in I]
+    I_filt = [savgol_filter(i, 50, 2) for i in I]
     # print(I_filt)
-    c.polynAmpDiff(I_filt, labels, 1)
-    # c.polynNoizeAmpl(noize, labels, 1)
-    c.plotCalibAndPoints()
+    c.polynAmpDiff(I_filt, labels, chipNum, 1)
+    # c.polynNoizeAmpl(noize, labels, chipNum, 1)
     for i in range(0, len(labels)):
-        print(f"exp: {labels[i]}\tgot: {c.calculateConcentration(I_filt[i])}")
-
-    plotData(V, noize, inv, labels)
+        print(f"exp: {labels[i]}\tgot: {c.calculateConcentration(I_filt[i], chipNum[i])}")
+    # inv += [0, 1, 2, 4, 5, 6]
+    plotData(V, I, inv, labels, chipNum)
+    plotData(V, I_filt, inv, labels, chipNum)
+    c.plotCalibAndPoints()
     plt.show()
     
