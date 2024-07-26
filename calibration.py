@@ -236,7 +236,7 @@ if __name__ == "__main__":
     V, I, inv, labels, chipNum = [], [], [], [], []
     mapOverFolder("csv_files", getData, V, I, inv, labels, chipNum)
     noize = list(map(getNoizeAmplitude, I))
-    I_filt = [savgol_filter(i, 50, 2) for i in I]
+    I_filt = [savgol_filter(i, 25, 2) for i in I] # change 2nd parameter to the filter to change window size
     # print(I_filt)
     c.polynAmpDiff(I_filt, labels, chipNum, 1)
     # c.polynNoizeAmpl(noize, labels, chipNum, 1)
@@ -245,6 +245,6 @@ if __name__ == "__main__":
     # inv += [0, 1, 2, 4, 5, 6]
     plotData(V, I, inv, labels, chipNum)
     plotData(V, I_filt, inv, labels, chipNum)
-    c.plotCalibAndPoints()
+    # c.plotCalibAndPoints()
     plt.show()
     
