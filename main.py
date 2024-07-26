@@ -1,25 +1,31 @@
-def measComplete():
+def start():
+
+    nextState = measureBaseline
     pass
 
-def measuring():
-    pass
-
-def pumping():
+def measureBaseline():
     pass
 
 def waitingForSample():
     pass
 
-def start():
+def pumping():
     pass
 
-def cleaning():
+def measuring():
+    pass
+
+def measComplete():
     pass
 
 def unbinding():
     pass
 
+def cleaning():
+    pass
+
 states = [ start
+         , measureBaseline
          , waitingForSample
          , pumping
          , measuring
@@ -27,6 +33,7 @@ states = [ start
          , cleaning
          , unbinding]
 
+nextState = start
 curState = start
 prevState = start
 

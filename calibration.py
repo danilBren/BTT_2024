@@ -218,8 +218,6 @@ def getData(filePath: str, Volts, Curr, inval, labels, chipnum):
         
 def plotData(V, I, inv, labels, chipNums):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
-    # colors = plt.get_cmap('viridis', len(I)*3) 
-    # colors = list(colors_css.CSS4_COLORS.keys())
 
     plt.figure(figsize=(16, 9))
     for i in range(len(V)):
