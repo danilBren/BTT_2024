@@ -1,0 +1,7 @@
+/env/
+/__pycache__/
+/PSPythonSDK/pspython/__pycache__/
+/PSPythonSDK/__pycache__/
+/PSPythonSDK/palmsens/__pycache__/
+/EmstatPico/output/
+__pycache__/
