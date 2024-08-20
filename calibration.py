@@ -96,7 +96,7 @@ class Calibration:
         return res    
 
     
-    def plotCalibAndPoints(self):
+    def plotCalibAndPoints(self, fs=16):
         """
         plots data from x_norm using labels as Y value and data from 
         points_normalized using results as Y value. 
@@ -120,10 +120,11 @@ class Calibration:
         plt.plot(x_range, y_range, color='green', label='Polynomial Fit')
         
         # Adding labels and legend
-        plt.xlabel('Normalized signal')
-        plt.ylabel('Concentration')
-        plt.title('Calibration and Concentration Plot')
-        plt.legend()
+        plt.xlabel('Normalized signal', fontsize=fs)
+        plt.ylabel('Concentration', fontsize=fs)
+        plt.title('Calibration and Concentration Plot', fontsize=fs+2)
+        plt.legend(fontsize=fs)
+        plt.tick_params(axis='both', which='major', labelsize=fs)
 
 def getNoizeAmplitude(I):
     WINDOW = 10
@@ -226,7 +227,7 @@ def getData(filePath: str, Volts, Curr, inval, labels, chipnum):
         labels += getLables(labels_str, n)
         chipnum += getChipNum(labels_str, n)
         
-def plotData(V, I, inv, labels, chipNums):
+def plotData(V, I, inv, labels, chipNums, fs=26):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
     # colors = plt.get_cmap('viridis', len(I)*3) 
     # colors = list(colors_css.CSS4_COLORS.keys())
@@ -237,9 +238,10 @@ def plotData(V, I, inv, labels, chipNums):
         if not i in inv:
             plt.plot(V[i], I[i], label=str(labels[i]) + " on chip " + str(chipNums[i]), color=color)
         
-    plt.xlabel("Volts")
-    plt.ylabel("microAmp")
-    plt.legend()
+    plt.xlabel("Volts", fontsize=fs)
+    plt.ylabel("microAmp", fontsize=fs)
+    plt.legend(fontsize=fs)
+    plt.tick_params(axis='both', which='major', labelsize=fs)
 
 if __name__ == "__main__":
     c = Calibration()
