@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updated Value</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 0px;
+            padding: 0px; /* Add padding for spacing */
+        }
+        .data-container {
+            display: flex;
+            width: 90%;
+            height: 60vh; /* Occupy 75% of the screen height */
+            max-width: 100%; /* Ensure container fills the available width */
+            margin-bottom: 20px;
+        }
+        .chart-container, .neumorphic-card {
+            flex: 1; /* Take up equal space */
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            height: 60vh;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1), -5px -5px 15px rgba(255, 255, 255, 0.7);
+            box-sizing: border-box; /* Ensure padding is included in width */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .data-container > div:not(:last-child) {
+            margin-right: 20px; /* Space between the cards */
+        }
+        .chart-container h1, .neumorphic-card h1 {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+        .value-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-top: 10px;
+            margin-bottom: 100px;
+            text-align: center;
+        }
+        .value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .unit {
+            font-size: 14px;
+            color: #666;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 100%; /* Ensure container fills the available width */
+            margin-top: 20px;
+            padding: 10px; /* Add padding for spacing */
+            box-sizing: border-box; /* Ensure padding is included in width */
+        }
+        .button-container button {
+            background-color: #e0e0e0;
+            border: none;
+            padding: 15px 20px; /* Reduced padding */
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 5px 5px 15px #bebebe, -5px -5px 15px #ffffff;
+            display: inline-block;
+            font-size: 16px;
+            margin-right: 5px; /* Reduced margin */
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button-container button:last-child {
+            margin-right: 0;
+        }
+        .button-container button:hover {
+            box-shadow: inset 5px 5px 15px #bebebe, inset -5px -5px 15px #ffffff;
+        }
+
+        .logo {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 20%; /* Adjust size as needed */
+            height: auto;
+        }
+        h1 {
+            margin-top: 10px; /* Adjust as needed */
+            margin-bottom: 10px;
+            font-family: "San Francisco", bold;
+        }
+        h2{
+            font-size: 30px;
+            font-family: "San Francisco", serif;
+            text-align: center;
+        }
+        @font-face {
+          font-family: "San Francisco";
+          font-weight: 400;
+          src: url("https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff");
+        }
+
+    </style>
+    <script>
+        let values = [];
+        let chart;
+
+        function fetchValue() {
+    fetch('/get_value')
+        .then(response => response.json())
+        .then(data => {
+            values.push(data.value);
+
+            if (values.length > 60) {
+                values.shift();
+            }
+
+            chart.data.labels = values.map((_, index) => (index + 1).toString());
+            chart.data.datasets[0].data = values;
+            chart.update();
+
+            const valueElement = document.getElementById('value');
+            valueElement.innerText = data.value;
+            const unitElement = document.getElementById('unit');
+            unitElement.innerText = "mg/ml";
+
+            // Remove color-changing logic
+
+            const analyzedElement = document.getElementById('analyzed');
+            analyzedElement.style.display = 'block';
+        });
+}
+
+        function sendCommand(endpoint) {
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    if (endpoint === '/sample_introduced') {
+                        console.log(data.result);
+                        fetchValue();  // Fetch the value after sample introduction
+                    }
+                });
+        }
+
+        window.onload = function() {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1'],  // Start with '1'
+                    datasets: [{
+                        data: [0],  // Initial value for Sample 0
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Sample'  // Label for the x-axis
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 0  // Hide points
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>AKI-SENSE</h1>
+        <div class="data-container">
+            <div class="chart-container">
+                <h2>Concentration Graph</h2>
+                <canvas id="myChart"></canvas>
+            </div>
+            <div class="neumorphic-card">
+                <h2>Concentration Value</h2>
+                <div id="analyzed" class="value-container" style="display: none;">
+                    <span id="value" class="value">0</span>
+                    <span id="unit" class="unit">mg/ml</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="button-container">
+        <button onclick="sendCommand('/sample_introduced')"><img src="static/icon_sample.png" alt="Sample Icon" width="24" height="24"></button>
+        <button onclick="sendCommand('/cleanup')"><img src="static/icon_cleanup.png" alt="Cleanup Icon" width="24" height="24"></button>
+        <button onclick="sendCommand('/stop_cleanup')"><img src="static/icon_stop.png" alt="Stop Cleanup Icon" width="24" height="27"></button>
+        <button onclick="sendCommand('/debug')"><img src="static/icon_debug.png" alt="Debug Icon" width="24" height="24"></button>
+    </div>
+    <img class="logo" src="static/placeholder_logo.png" alt="Logo Placeholder">
+</body>
+</html>
