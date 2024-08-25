@@ -65,6 +65,7 @@ def measure():
         device.send_script(MSCRIPT_FILE_PATH)
 
         # Read the script output (results) from the device.
+        ec = 0
         while True:
             line = ""
             try :
@@ -73,6 +74,8 @@ def measure():
                 pass
             # No data means timeout, so ignore it and try again.
             if not line:
+                ec += 1
+                print(ec)
                 continue
 
             # An empty line means end of script.
