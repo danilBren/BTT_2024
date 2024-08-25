@@ -31,6 +31,7 @@ MSCRIPT_FILE_PATH = 'EmstatPico/scripts/example_advanced_swv_espico.mscr' # 'swv
 
 LOG = logging.getLogger(__name__)
 
+measurement_complete = False
 meas_number = 0
 file_dir = "results/"
 file_header = "meas_"
@@ -132,6 +133,7 @@ def measure(meas_number):
                         csvwriter.writerow([potential, current])
                     except (IndexError, ValueError) as e:
                         LOG.error(f"Error parsing line: {line} - {e}")
+    measurement_complete = True
 
 if __name__ == "__main__":
     measure(meas_number)

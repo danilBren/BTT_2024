@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 import threading
 import logging
+import pump
 
 app = Flask(__name__)
 
@@ -8,6 +9,7 @@ app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+off_button_pressed = False
 my_variable = 0
 measuring = False
 input_requested = threading.Event()
@@ -49,18 +51,32 @@ def sample_introduced():
 
 @app.route('/cleanup')
 def cleanup():
-    print("Cleanup button pressed")
-    return jsonify(result="Cleanup started")
+    print("Start flow")
+    pump.setPressure(75)
+    return jsonify(result="Flow started")
+
+@app.route('/slow_flow')
+def slow_flow():
+    print("Slow flow")
+    pump.setPressure(35)
+    return jsonify(result="Slow flow")
 
 @app.route('/stop_cleanup')
 def stop_cleanup():
-    print("Stop Cleanup button pressed")
-    return jsonify(result="Cleanup stopped")
+    print("Stop flow")
+    pump.setPressure(0)
+    return jsonify(result="Flow stopped")
 
 @app.route('/debug')
 def debug():
     print("Debug button pressed") #change to variable change
     return jsonify(result="Debugging mode")
+
+@app.route('/device_off')
+def turn_off():
+    off_button_pressed = True
+    return jsonify(result="Turning off")
+
 
 def run_flask():
     app.run(host='0.0.0.0', port=8080, debug=True)

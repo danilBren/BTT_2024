@@ -171,7 +171,7 @@ def getAvgMinMax(I):
     smallest = np.average(np.partition(I, N_DP)[:N_DP])
     return biggest, smallest
 
-def getData(filePath: str, Volts, Curr, inval, labels, chipnum):
+def getData(filePath: str, Volts, Curr, invl = [], labels = [], chipnum = []):
     """
     adds voltage and current from the file to Volts and Curr array
     returns indexes of invalid entries
