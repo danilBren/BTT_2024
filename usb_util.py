@@ -7,8 +7,8 @@ def get_usb_ports():
     
     # Define the device names to search for
     devices = {
-        "ESPicoDev": None,
-        "FT230X Basic UART": None
+        "Future Technology": None,
+        "Future Technology": None
     }
     
     # Search for the devices in the lsusb output
