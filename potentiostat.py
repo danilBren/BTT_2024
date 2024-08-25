@@ -128,6 +128,7 @@ def measure(meas_number):
                         potential = float(line.split('Applied potential =')[1].split('V')[0].strip())
                         current = float(line.split('WE current =')[1].split('A')[0].strip())
                         # Write values to CSV
+                        current = str(float(current)*10^6)
                         csvwriter.writerow([potential, current])
                     except (IndexError, ValueError) as e:
                         LOG.error(f"Error parsing line: {line} - {e}")
