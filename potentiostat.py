@@ -98,7 +98,23 @@ def measure(meas_number):
                 if data == '\n':
                     break
 
-                buffer += data #.decode('utf-8')
+                variables = palmsens.mscript.parse_mscript_data_package(data)
+
+                if variables:
+                    # Apparently it was a data package. Print all variables.
+                    cols = []
+                    for var in variables:
+                        cols.append(f'{var.type.name} = {var.value:11.4g} {var.type.unit}')
+                        if 'status' in var.metadata:
+                            status_text = palmsens.mscript.metadata_status_to_text(
+                                var.metadata['status'])
+                            cols.append(f'STATUS: {status_text:<16s}')
+                        if 'cr' in var.metadata:
+                            cr_text = palmsens.mscript.metadata_current_range_to_text(
+                                device_type, var.type, var.metadata['cr'])
+                            cols.append(f'CR: {cr_text}')
+                    buffer += ' | '.join(cols)
+
 
             while '\n' in buffer:
                 line, buffer = buffer.split('\n', 1)
