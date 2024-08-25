@@ -33,7 +33,7 @@ LOG = logging.getLogger(__name__)
 meas_number = 0
 file_path_header = "results/meas_"
 
-def measure():
+def measure(meas_number):
     """Run the example."""
     # Configure the logging.
     logging.basicConfig(level=logging.INFO, format='[%(module)s] %(message)s',
@@ -67,7 +67,6 @@ def measure():
 
         # Read the script output (results) from the device. and write it into a CSV file\
         fname = file_path_header + str(0)
-        meas_number += 1
         with open(fname, 'w', newline='') as csvfile:
             
             csvwriter = csv.writer(csvfile)
@@ -115,3 +114,4 @@ def measure():
 
 if __name__ == "__main__":
     measure()
+    meas_number += 1
