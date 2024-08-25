@@ -19,10 +19,10 @@ import palmsens.serial
 # In case auto-detection does not work or is not wanted, fill in the correct
 # port name, e.g. 'COM6' on Windows, or '/dev/ttyUSB0' on Linux.
 # DEVICE_PORT = 'COM6'
-DEVICE_PORT = "/dev/ttyUSB1"
+DEVICE_PORT = "/dev/ttyUSB0"
 
 # Location of MethodSCRIPT file to use.
-MSCRIPT_FILE_PATH = 'scripts/example_cv.mscr'
+MSCRIPT_FILE_PATH = 'swv_settings.mscr'
 
 ###############################################################################
 # End of configuration
