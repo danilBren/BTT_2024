@@ -30,7 +30,7 @@ MSCRIPT_FILE_PATH = 'EmstatPico/scripts/example_advanced_swv_espico.mscr' # 'swv
 
 LOG = logging.getLogger(__name__)
 
-file_number = 0
+meas_number = 0
 file_path_header = "results/meas_"
 
 def measure():
@@ -66,14 +66,14 @@ def measure():
         device.send_script(MSCRIPT_FILE_PATH)
 
         # Read the script output (results) from the device. and write it into a CSV file\
-        fname = file_path_header + str(file_number)
-        file_number += 1
+        fname = file_path_header + str(0)
+        meas_number += 1
         with open(fname, 'w', newline='') as csvfile:
             
             csvwriter = csv.writer(csvfile)
 
             csvwriter.writerow(['Date and time', datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
-            csvwriter.writerow(['Notes', 'measurement' + file_number])
+            csvwriter.writerow(['Notes', 'measurement' + meas_number])
             # 3 rows to match header of the files created by the program. Usually contains information about the measurement.
             csvwriter.writerow()
             csvwriter.writerow()
