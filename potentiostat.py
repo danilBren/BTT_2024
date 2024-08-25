@@ -66,6 +66,7 @@ def measure():
 
         # Read the script output (results) from the device.
         while True:
+            line = ""
             try :
                 line = device.readline()
             except:
