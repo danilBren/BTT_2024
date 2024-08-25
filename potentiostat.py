@@ -113,5 +113,5 @@ def measure(meas_number):
                         LOG.error(f"Error parsing line: {line} - {e}")
 
 if __name__ == "__main__":
-    measure()
+    measure(meas_number)
     meas_number += 1
