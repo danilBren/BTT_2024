@@ -66,8 +66,10 @@ def measure():
 
         # Read the script output (results) from the device.
         while True:
-            line = device.readline()
-
+            try :
+                line = device.readline()
+            except:
+                continue
             # No data means timeout, so ignore it and try again.
             if not line:
                 continue
