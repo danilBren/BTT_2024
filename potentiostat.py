@@ -69,7 +69,7 @@ def measure():
             try :
                 line = device.readline()
             except:
-                continue
+                pass
             # No data means timeout, so ignore it and try again.
             if not line:
                 continue
