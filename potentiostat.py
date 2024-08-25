@@ -1,5 +1,6 @@
 # Standard library imports
 import logging
+import os
 import sys
 import csv
 
@@ -31,7 +32,8 @@ MSCRIPT_FILE_PATH = 'EmstatPico/scripts/example_advanced_swv_espico.mscr' # 'swv
 LOG = logging.getLogger(__name__)
 
 meas_number = 0
-file_path_header = "results/meas_"
+file_dir = "results/"
+file_header = "meas_"
 
 def measure(meas_number):
     """Run the example."""
@@ -64,9 +66,10 @@ def measure(meas_number):
 
         # Read MethodSCRIPT from file and send to device.
         device.send_script(MSCRIPT_FILE_PATH)
+        os.makedirs(os.path.dirname(file_dir), exist_ok=True)
 
         # Read the script output (results) from the device. and write it into a CSV file\
-        fname = file_path_header + str(0)
+        fname = file_dir + file_header + str(meas_number) + '.csv'
         with open(fname, 'w', newline='') as csvfile:
             
             csvwriter = csv.writer(csvfile)
