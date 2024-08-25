@@ -4,12 +4,18 @@ Setup a PID loop to control to pressure, and set a target pressure.
 
 import serial
 
+LOW_SPEED_PRESSURE = 0
+HIGH_SPEED_PRESSURE = 0
+
 # set up port – replace COM port number with the COM port you are using
 pump_port = serial.Serial(port="/dev/ttyUSB0",
                             baudrate=115200,
                             bytesize=8,
                             timeout=2,
                             stopbits=serial.STOPBITS_ONE)
+
+def init():
+    pass
 
 def setPressure(pressure: int):
     # turn off data streaming mode

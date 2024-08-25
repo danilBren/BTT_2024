@@ -19,7 +19,7 @@ import palmsens.serial
 # In case auto-detection does not work or is not wanted, fill in the correct
 # port name, e.g. 'COM6' on Windows, or '/dev/ttyUSB0' on Linux.
 # DEVICE_PORT = 'COM6'
-DEVICE_PORT = None
+DEVICE_PORT = "/dev/ttyUSB1"
 
 # Location of MethodSCRIPT file to use.
 MSCRIPT_FILE_PATH = 'scripts/example_cv.mscr'
@@ -32,7 +32,7 @@ MSCRIPT_FILE_PATH = 'scripts/example_cv.mscr'
 LOG = logging.getLogger(__name__)
 
 
-def main():
+def measure():
     """Run the example."""
     # Configure the logging.
     logging.basicConfig(level=logging.INFO, format='[%(module)s] %(message)s',
@@ -94,6 +94,5 @@ def main():
                         cols.append(f'CR: {cr_text}')
                 print(' | '.join(cols))
 
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    measure()

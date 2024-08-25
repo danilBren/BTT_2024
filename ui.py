@@ -13,19 +13,20 @@ measuring = False
 input_requested = threading.Event()
 value_updated = threading.Event()
 
-def read_value():
-    global my_variable, measuring
-    while True:
-        input_requested.wait()  # Block until a value is requested
-        input_value = input("Enter a value for the concentration: ")
-        try:
-            my_variable = int(input_value)
-            measuring = False
-            input_requested.clear()
-            value_updated.set()  # Signal that the value has been updated
-            print(f"Value {my_variable} received and displayed.")
-        except ValueError:
-            print("Please enter a valid number.")
+
+# def read_value():
+#     global my_variable, measuring
+#     while True:
+#         input_requested.wait()  # Block until a value is requested
+#         input_value = input("Enter a value for the concentration: ")
+#         try:
+#             my_variable = int(input_value)
+#             measuring = False
+#             input_requested.clear()
+#             value_updated.set()  # Signal that the value has been updated
+#             print(f"Value {my_variable} received and displayed.")
+#         except ValueError:
+#             print("Please enter a valid number.")
 
 @app.route('/')
 def index():
@@ -61,6 +62,8 @@ def debug():
     print("Debug button pressed") #change to variable change
     return jsonify(result="Debugging mode")
 
+def run_flask():
+    app.run(host='0.0.0.0', port=8080, debug=True)
+
 if __name__ == '__main__':
-    threading.Thread(target=read_value, daemon=True).start()
     app.run(host='0.0.0.0', port=8080, debug=True)
