@@ -1,14 +1,13 @@
-def measureSWV():
-    pass
-
 # Standard library imports
 import logging
 import sys
+import csv
 
 # Local imports
 import palmsens.instrument
 import palmsens.mscript
 import palmsens.serial
+from datetime import datetime
 
 
 ###############################################################################
@@ -31,6 +30,8 @@ MSCRIPT_FILE_PATH = 'EmstatPico/scripts/example_advanced_swv_espico.mscr' # 'swv
 
 LOG = logging.getLogger(__name__)
 
+file_number = 0
+file_path_header = "results/meas_"
 
 def measure():
     """Run the example."""
@@ -64,42 +65,53 @@ def measure():
         # Read MethodSCRIPT from file and send to device.
         device.send_script(MSCRIPT_FILE_PATH)
 
-        # Read the script output (results) from the device.
-        ec = 0
-        while True:
-            line = ""
-            try :
-                line = device.readline()
-            except:
-                print(line)
-                pass
-            # No data means timeout, so ignore it and try again.
-            if not line:
-                ec += 1
-                print(ec)
-                continue
+        # Read the script output (results) from the device. and write it into a CSV file\
+        fname = file_path_header + file_number
+        file_number += 1
+        with open(fname, 'w', newline='') as csvfile:
+            
+            csvwriter = csv.writer(csvfile)
 
-            # An empty line means end of script.
-            if line == '\n':
-                break
+            csvwriter.writerow(['Date and time', datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+            csvwriter.writerow(['Notes', 'measurement' + file_number])
+            # 3 rows to match header of the files created by the program. Usually contains information about the measurement.
+            csvwriter.writerow()
+            csvwriter.writerow()
+            csvwriter.writerow()
 
-            # Non-empty line received. Try to parse as data package.
-            variables = palmsens.mscript.parse_mscript_data_package(line)
+            csvwriter.writerow(['V', 'uA'])
 
-            if variables:
-                # Apparently it was a data package. Print all variables.
-                cols = []
-                for var in variables:
-                    cols.append(f'{var.type.name} = {var.value:11.4g} {var.type.unit}')
-                    if 'status' in var.metadata:
-                        status_text = palmsens.mscript.metadata_status_to_text(
-                            var.metadata['status'])
-                        cols.append(f'STATUS: {status_text:<16s}')
-                    if 'cr' in var.metadata:
-                        cr_text = palmsens.mscript.metadata_current_range_to_text(
-                            device_type, var.type, var.metadata['cr'])
-                        cols.append(f'CR: {cr_text}')
-                print(' | '.join(cols))
+            buffer = ""
+            while True:
+                data = ""
+                try :
+                    data = device.readline()
+                except:
+                    LOG.error("error reading from device")
+                # No data means timeout, so ignore it and try again.
+                if not data:
+                    continue
+
+                # An empty line means end of script.
+                if data == '\n':
+                    break
+
+                buffer += data.decode('utf-8')
+
+            while '\n' in buffer:
+                line, buffer = buffer.split('\n', 1)
+
+                if line == '':
+                    break
+                
+                if 'Applied potential' in line and 'WE current' in line:
+                    try:
+                        potential = float(line.split('Applied potential =')[1].split('V')[0].strip())
+                        current = float(line.split('WE current =')[1].split('A')[0].strip())
+                        # Write values to CSV
+                        csvwriter.writerow([potential, current])
+                    except (IndexError, ValueError) as e:
+                        LOG.error(f"Error parsing line: {line} - {e}")
 
 if __name__ == "__main__":
     measure()
