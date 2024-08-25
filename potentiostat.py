@@ -77,9 +77,9 @@ def measure(meas_number):
             csvwriter.writerow(['Date and time', datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
             csvwriter.writerow(['Notes', 'measurement' + str(meas_number)])
             # 3 rows to match header of the files created by the program. Usually contains information about the measurement.
-            csvwriter.writerow('')
-            csvwriter.writerow('')
-            csvwriter.writerow('')
+            csvwriter.writerow([])
+            csvwriter.writerow([])
+            csvwriter.writerow([])
 
             csvwriter.writerow(['V', 'uA'])
 
@@ -113,7 +113,7 @@ def measure(meas_number):
                             cr_text = palmsens.mscript.metadata_current_range_to_text(
                                 device_type, var.type, var.metadata['cr'])
                             cols.append(f'CR: {cr_text}')
-                    buffer += ' | '.join(cols)
+                    buffer += ' | '.join(cols) + '\n'
 
 
             while '\n' in buffer:
