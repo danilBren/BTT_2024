@@ -66,7 +66,7 @@ def measure():
         device.send_script(MSCRIPT_FILE_PATH)
 
         # Read the script output (results) from the device. and write it into a CSV file\
-        fname = file_path_header + file_number
+        fname = file_path_header + str(file_number)
         file_number += 1
         with open(fname, 'w', newline='') as csvfile:
             
