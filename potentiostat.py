@@ -98,7 +98,7 @@ def measure(meas_number):
                 if data == '\n':
                     break
 
-                buffer += data.decode('utf-8')
+                # buffer += data.decode('utf-8')
 
             while '\n' in buffer:
                 line, buffer = buffer.split('\n', 1)
