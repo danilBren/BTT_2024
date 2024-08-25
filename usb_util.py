@@ -4,7 +4,6 @@ import re
 def get_usb_ports():
     # Execute lsusb command to list USB devices
     lsusb_output = subprocess.check_output(['lsusb']).decode('utf-8')
-    # print(lsusb_output)
     
     # Define the device names to search for
     devices = {
@@ -25,17 +24,19 @@ def get_usb_ports():
     
     # Retrieve the corresponding ports using dmesg
     ports = {}
-    dmesg_output = subprocess.check_output(['dmesg']).decode('utf-8')
-    # print(dmesg_output)
     try:
-        for device_name, (bus, device) in devices.items():
-            if bus and device:
+        dmesg_output = subprocess.check_output(['dmesg']).decode('utf-8')
+        for device_name, bus_device in devices.items():
+            if bus_device:
+                bus, device = bus_device
                 # Search for the ttyUSB port in dmesg output
-                match = re.search(r'ttyUSB\d+', dmesg_output)
-                if match:
-                    ports[device_name] = match.group(0)
-    except TypeError:
-        print("Devices are not connected")
+                pattern = re.compile(r'ttyUSB\d+.*?usb\s+(\d+)-(\d+)', re.DOTALL)
+                for match in pattern.finditer(dmesg_output):
+                    if match.group(1) == bus and match.group(2) == device:
+                        ports[device_name] = match.group(0)
+                        break
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing dmesg: {e}")
     
     return ports
 
