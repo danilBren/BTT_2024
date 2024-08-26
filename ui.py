@@ -95,7 +95,7 @@ def stop_flow():
     web_logger("Stop flow")
     pump.setPressure(0)
     return jsonify(result="Flow stopped")
-
+``
 @app.route('/debug_info')
 def debug_info():
     # Replace this with actual debug information retrieval logic

@@ -64,7 +64,6 @@ def waitingForSample():
 
     #exit
     nextState = pumping
-    ui.web_logger("Received sample")
 
 def pumping():
     global prevState, nextState
