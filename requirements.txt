@@ -4,3 +4,4 @@ os
 matplotlib
 scipy
 pyserial
+flask-socketio

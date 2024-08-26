@@ -31,6 +31,9 @@ value_updated = threading.Event()
 #         except ValueError:
 #             print("Please enter a valid number.")
 
+def web_logger(message):
+    print(f"INFO: \t", message)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -46,36 +49,47 @@ def sample_introduced():
     global measuring
     measuring = True
     input_requested.set()
-    print("Sample Introduced button pressed, measuring...")
+    value_updated.clear()
+    web_logger("Sample Introduced button pressed, measuring...")
     value_updated.wait()  # Block until a new value is entered
     return jsonify(result="Measuring")
 
-@app.route('/cleanup')
-def cleanup():
-    print("Start flow")
+@app.route('/fast_flow')
+def fast_flow():
+    """
+    because timing for the pump is unknown - directly change pressure of the pump
+    """
+    web_logger("Start flow")
     pump.setPressure(75)
     return jsonify(result="Flow started")
 
 @app.route('/slow_flow')
 def slow_flow():
-    print("Slow flow")
+    """
+    because timing for the pump is unknown - directly change pressure of the pump
+    """
+    web_logger("Slow flow")
     pump.setPressure(35)
     return jsonify(result="Slow flow")
 
-@app.route('/stop_cleanup')
-def stop_cleanup():
-    print("Stop flow")
+@app.route('/stop_flow')
+def stop_flow():
+    """
+    because timing for the pump is unknown - directly change pressure of the pump
+    """
+    web_logger("Stop flow")
     pump.setPressure(0)
     return jsonify(result="Flow stopped")
 
 @app.route('/debug')
 def debug():
-    print("Debug button pressed") #change to variable change
+    web_logger("Debug button pressed") #change to variable change
     return jsonify(result="Debugging mode")
 
 @app.route('/device_off')
 def turn_off():
     off_button_pressed = True
+
     return jsonify(result="Turning off")
 
 

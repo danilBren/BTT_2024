@@ -60,14 +60,14 @@ def _is_mscript_device(port_description: str):
     return (port_description == 'EmStat4' or
             port_description.startswith('ESPicoDev') or
             port_description.startswith('SensitBT') or
-            port_description.startswith('SensitSmart') or
+            port_description.startswith('SensitSmart'))
             # ^ Above names are used in Linux
             # v Below names are used in Windows
-            port_description.startswith('EmStat4 LR (COM') or
-            port_description.startswith('EmStat4 HR (COM') or
-            port_description.startswith('MultiEmStat4 LR (COM') or
-            port_description.startswith('MultiEmStat4 HR (COM') or
-            port_description.startswith('USB Serial Port'))
+            # port_description.startswith('EmStat4 LR (COM') or
+            # port_description.startswith('EmStat4 HR (COM') or
+            # port_description.startswith('MultiEmStat4 LR (COM') or
+            # port_description.startswith('MultiEmStat4 HR (COM') or
+            # port_description.startswith('USB Serial Port'))
 
 
 def auto_detect_port():

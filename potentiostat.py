@@ -3,26 +3,22 @@ import logging
 import os
 import sys
 import csv
+from datetime import datetime
 
 # Local imports
 import palmsens.instrument
 import palmsens.mscript
 import palmsens.serial
-from datetime import datetime
 
 
 ###############################################################################
 # Start of configuration
 ###############################################################################
 
-# COM port of the MethodSCRIPT device (None = auto-detect).
-# In case auto-detection does not work or is not wanted, fill in the correct
-# port name, e.g. 'COM6' on Windows, or '/dev/ttyUSB0' on Linux.
-# DEVICE_PORT = 'COM6'
 DEVICE_PORT = "/dev/ttyUSB0"
 
 # Location of MethodSCRIPT file to use.
-MSCRIPT_FILE_PATH = 'EmstatPico/scripts/example_advanced_swv_espico.mscr' # 'swv_settings.mscr'
+MSCRIPT_FILE_PATH = 'swv_settings.mscr' # 'swv_settings.mscr'
 
 ###############################################################################
 # End of configuration
@@ -37,6 +33,7 @@ file_dir = "results/"
 file_header = "meas_"
 
 def measure(meas_number):
+    global measurement_complete
     """Run the example."""
     # Configure the logging.
     logging.basicConfig(level=logging.INFO, format='[%(module)s] %(message)s',

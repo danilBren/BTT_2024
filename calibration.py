@@ -53,10 +53,10 @@ class Calibration:
         # make a map from chip number to base value measurement
         self.makeBaselineMap()
         # for each value divide it by the base value measurement on the same chip
-        print(self.x)
-        print(self.labels)
-        print(self.chipNums)
-        print(self.bs_map)
+        # print(self.x)
+        # print(self.labels)
+        # print(self.chipNums)
+        # print(self.bs_map)
         for i in range(0, len(self.x)):
             if (self.labels[i] != 0):
                 self.x[i] = self.x[i]/(self.bs_map[self.chipNums[i]])
@@ -171,50 +171,56 @@ def getAvgMinMax(I):
     smallest = np.average(np.partition(I, N_DP)[:N_DP])
     return biggest, smallest
 
-def getData(filePath: str, Volts, Curr, invl = [], labels = [], chipnum = []):
+def getData(filePath: str, Volts, Curr, inval = [], labels = [], chipnum = []):
     """
     adds voltage and current from the file to Volts and Curr array
     returns indexes of invalid entries
     """
-    with open(filePath, 'r', encoding='utf-16') as f:
-        reader = csv.reader(f)
+    
+    try:
+        with open(filePath, 'r', encoding='utf-16') as f:
+            reader = csv.reader(f)
 
-        # skip first 3 lines
-        for _ in range(3):
-            next(reader)
-        
-        labels_str = next(reader)
-        _ = next(reader) # date
-        ln = next(reader)
-        next(reader) # skip the first point because it is always too low 
-        li = len(Volts)
-        n = len(ln) // 2
+            # skip first 3 lines
+            for _ in range(3):
+                next(reader)
+            
+            labels_str = next(reader)
+            _ = next(reader) # date
+            ln = next(reader)
+            next(reader) # skip the first point because it is always too low 
+            li = len(Volts)
+            n = len(ln) // 2
 
-        V_list = [[] for _ in range(n)]
-        I_list = [[] for _ in range(n)]
-        inval_new = []
+            V_list = [[] for _ in range(n)]
+            I_list = [[] for _ in range(n)]
+            inval_new = []
 
-        for _ in range(40):
-            next(reader)
-        for r in reader:
-            for i in range(n):
-                try:
-                    if r[2*i] != '' and r[2*i+1] != '':
-                        V_list[i].append(float(r[2*i]))
-                        I_list[i].append(float(r[2*i+1]))
-                    elif not (i + li in inval_new):
-                        inval_new.append(i + li)
-                except IndexError:
-                    break
-        
-        V = [np.array(v, dtype=float) for v in V_list]
-        I = [np.array(i, dtype=float) for i in I_list]
+            for _ in range(40):
+                next(reader)
+            for r in reader:
+                for i in range(n):
+                    try:
+                        if r[2*i] != '' and r[2*i+1] != '':
+                            V_list[i].append(float(r[2*i]))
+                            I_list[i].append(float(r[2*i+1]))
+                        elif not (i + li in inval_new):
+                            inval_new.append(i + li)
+                    except IndexError:
+                        break
+            
+            V = [np.array(v, dtype=float) for v in V_list]
+            I = [np.array(i, dtype=float) for i in I_list]
 
-        Volts += (V)
-        Curr += (I)
-        inval += inval_new
-        labels += getLables(labels_str, n)
-        chipnum += getChipNum(labels_str, n)
+            Volts += (V)
+            Curr += (I)
+            inval += inval_new
+            labels += getLables(labels_str, n)
+            chipnum += getChipNum(labels_str, n)
+    except UnicodeDecodeError:
+         remove_last_line(filePath)
+         getData(filePath, Volts, Curr, inval, labels, chipnum)
+
         
 def plotData(V, I, inv, labels, chipNums):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
@@ -229,10 +235,23 @@ def plotData(V, I, inv, labels, chipNums):
     plt.ylabel("micraAmp")
     plt.legend()
 
+def remove_last_line(file_path):
+    # Step 1: Read all lines from the file
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    
+    # Step 2: Remove the last line
+    if lines:
+        lines = lines[:-1]
+    
+    # Step 3: Write the remaining lines back to the file
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.writelines(lines)
+
 if __name__ == "__main__":
     c = Calibration()
     V, I, inv, labels, chipNum = [], [], [], [], []
-    mapOverFolder("csv_files", getData, V, I, inv, labels, chipNum)
+    mapOverFolder("calibration", getData, V, I, inv, labels, chipNum)
     noize = list(map(getNoizeAmplitude, I))
     I_filt = [savgol_filter(i, 50, 2) for i in I]
     # print(I_filt)
