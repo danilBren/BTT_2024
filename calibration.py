@@ -125,7 +125,6 @@ def getNoizeAmplitude(I):
         noize_amp.append(np.std(I[i:i+WINDOW]))
     return np.array(noize_amp)
 
-
 def getLables(line, n):
     """
     returns a numpy array of labels in the line
