@@ -108,6 +108,50 @@
             margin-bottom: 10px;
             font-family: "San Francisco", bold;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .close-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background-color: #d32f2f;
+        }
         h2{
             font-size: 30px;
             font-family: "San Francisco", serif;
@@ -161,6 +205,26 @@
                 });
         }
 
+        function openDebugModal() {
+            fetch('/debug_info')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('debugContent').innerText = data;
+                    document.getElementById('debugModal').style.display = 'block';
+                });
+        }
+
+        function closeDebugModal() {
+            document.getElementById('debugModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('debugModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
         window.onload = function() {
             const ctx = document.getElementById('myChart').getContext('2d');
             chart = new Chart(ctx, {
@@ -185,7 +249,7 @@
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Sample'  // Label for the x-axis
+                                text: 'Sample number'  // Label for the x-axis
                             }
                         },
                         y: {
@@ -193,7 +257,7 @@
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Value'
+                                text: 'Value [uMol/l]'
                             }
                         }
                     },
@@ -219,7 +283,7 @@
                 <h2>Concentration Value</h2>
                 <div id="analyzed" class="value-container" style="display: none;">
                     <span id="value" class="value">0</span>
-                    <span id="unit" class="unit">mg/ml</span>
+                    <span id="unit" class="unit">uMol/l</span>
                 </div>
             </div>
         </div>
@@ -229,9 +293,17 @@
         <button onclick="sendCommand('/fast_flow')"><img src="static/icon_cleanup.png" alt="Flow Icon" width="24" height="24"></button>
         <button onclick="sendCommand('/slow_flow')"><img src="static/_.png" alt="Slow Flow Icon" width="24" height="24"></button>
         <button onclick="sendCommand('/stop_flow')"><img src="static/icon_stop.png" alt="Stop Cleanup Icon" width="24" height="24"></button>
-        <button onclick="sendCommand('/debug')"><img src="static/icon_debug.png" alt="Debug Icon" width="24" height="24"></button>
+        <button onclick="openDebugModal()"><img src="static/icon_debug.png" alt="Debug Icon" width="24" height="24"></button>
         <button onclick="sendCommand('/device_off')"><img src="static/off.png" alt="Debug Icon" width="24" height="24"></button>
     </div>
     <img class="logo" src="static/placeholder_logo.png" alt="Logo Placeholder">
+
+    <div id="debugModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDebugModal()">&times;</span>
+            <p id="debugContent">Loading...</p>
+        </div>
+    </div>
+</body>
 </body>
 </html>

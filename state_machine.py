@@ -16,7 +16,10 @@ chipNumber = 26
 old_measurements = 'archive'
 c = calib.Calibration()
 
-DEVICES_CONNECTED = False
+# DEVICES_CONNECTED = False
+
+POTENTIOSTAT_CONNECTED = False
+PUMP_CONNECTED = False
 
 def fit_model():
     """
@@ -44,7 +47,7 @@ def start():
     fit_model()
     # start the frontend
     
-    if DEVICES_CONNECTED:
+    if PUMP_CONNECTED:
         pump.init()
 
     prevState = start
@@ -93,7 +96,7 @@ def measuring():
         
         # to be able to run it without anything connected
         meas_number += 1
-        if DEVICES_CONNECTED:
+        if POTENTIOSTAT_CONNECTED:
             potentiostat.measure(meas_number)
         else: 
             potentiostat.measurement_complete = True

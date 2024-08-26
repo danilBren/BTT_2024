@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request
+from enum import Enum
 import threading
 import logging
 import webbrowser
@@ -17,6 +18,7 @@ input_requested = threading.Event()
 value_updated = threading.Event()
 
 
+
 # def read_value():
 #     global my_variable, measuring
 #     while True:
@@ -31,8 +33,21 @@ value_updated = threading.Event()
 #         except ValueError:
 #             print("Please enter a valid number.")
 
-def web_logger(message):
-    print(f"INFO: \t", message)
+log_storage = []
+
+class LogLevels(Enum):
+    ERROR = "ERROR", 
+    INFO = "INFO"
+
+
+def web_logger(message, level = LogLevels.INFO):
+    msg = message
+    if level == LogLevels.INFO:
+        msg = "{}: \t{}".format("INFO", message)
+    elif level == LogLevels.ERROR:
+        msg = "{}: \t{}".format("ERROR", message)
+    log_storage.append(msg)
+    print(msg)
 
 @app.route('/')
 def index():
@@ -81,10 +96,12 @@ def stop_flow():
     pump.setPressure(0)
     return jsonify(result="Flow stopped")
 
-@app.route('/debug')
-def debug():
-    web_logger("Debug button pressed") #change to variable change
-    return jsonify(result="Debugging mode")
+@app.route('/debug_info')
+def debug_info():
+    # Replace this with actual debug information retrieval logic
+    debug_data = "\n".join(log_storage)
+    return debug_data
+
 
 @app.route('/device_off')
 def turn_off():
@@ -94,7 +111,7 @@ def turn_off():
 
 
 def run_flask():
-    webbrowser.open('http://0.0.0.0:8080')
+    # webbrowser.open('http://0.0.0.0:8080')
     app.run(host='0.0.0.0', port=8080, debug=True)
 
 if __name__ == '__main__':
