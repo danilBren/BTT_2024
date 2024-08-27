@@ -13,7 +13,7 @@ running = False
 res_path = potentiostat.file_dir
 file_header = potentiostat.file_header
 calibration_data_dir = 'calibration/'
-chipNumber = 26
+chipNumber = 5
 old_measurements = 'archive'
 c = calib.Calibration()
 

@@ -74,6 +74,14 @@ class Calibration:
         X_max = [max(x) for x in self.Xs]
         self.x = np.array(X_max)
 
+    def featureAvgVal(self, Xs, labels, chipNums):
+        """
+        Computes the average value for each chip and stores it in self.x.
+        """
+        self.sortByLabels(Xs, labels, chipNums)
+        X_avg = [np.average(x) for x in self.Xs]
+        self.x = np.array(X_avg)
+
     def featureFarFetched(self, Xs, labels, chipNums, Vs = None):
         self.sortByLabels(Xs, labels, chipNums, Vs)
         target = -0.45
@@ -106,16 +114,16 @@ class Calibration:
         self.coeff = np.polyfit(self.x, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
 
-    def calculateConcentration(self, Is, chipNum):
+    def calculateConcentration(self, Xs, chipNum):
         """
         calculates concentration of the sample 
         and appends it to the list of results
         """
-        t, b = getAvgMinMax(Is)
-        self.points.append(diffFunc(t, b))
-        self.points_normalized.append((diffFunc(t, b)/(self.bs_map[chipNum])-self.x_min)/(self.x_max-self.x_min))
-        res = self.polyn(self.points[len(self.points)-1])   
-        self.results.append(res) 
+        self.points.append(Xs)
+        if (False and self.bs_map[chipNum] != -1):
+            res = self.polyn(self.points[len(self.points)-1]/self.bs_map[chipNum])   
+        else:
+            res = self.polyn(self.points[len(self.points)-1])
         return res    
 
     
