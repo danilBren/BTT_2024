@@ -8,6 +8,7 @@ import calibration as calib
 from scipy.signal import savgol_filter
 
 meas_number = 0
+current_filename = ""
 running = False
 res_path = potentiostat.file_dir
 file_header = potentiostat.file_header
@@ -94,8 +95,9 @@ def measuring():
         # to be able to run it without anything connected
         meas_number += 1
         if POTENTIOSTAT_CONNECTED:
-            potentiostat.measure(meas_number)
+            current_filename = potentiostat.measure(meas_number)
         else: 
+            # just to skip over to check if stuff works
             potentiostat.measurement_complete = True
     
     
@@ -116,7 +118,7 @@ def measComplete():
     """
     global prevState, nextState, meas_number
     if prevState != measComplete:
-        val = calculate_from_file(res_path + file_header + str(meas_number) + '.csv')
+        val = calculate_from_file(current_filename)
         ui.my_variable = val
         ui.web_logger("Result is " + str(val))
         ui.value_updated.set()

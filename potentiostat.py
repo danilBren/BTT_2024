@@ -67,7 +67,7 @@ def measure(meas_number):
         os.makedirs(os.path.dirname(file_dir), exist_ok=True)
 
         # Read the script output (results) from the device. and write it into a CSV file\
-        fname = file_dir + file_header + str(meas_number) + '.csv'
+        fname = file_dir + file_header + str(meas_number) + '_' + datetime.now().strftime("%Y-%m-%d %H:%M:%S")+ '.csv'
         with open(fname, 'w', newline='') as csvfile:
             
             csvwriter = csv.writer(csvfile)
@@ -131,6 +131,7 @@ def measure(meas_number):
                     except (IndexError, ValueError) as e:
                         LOG.error(f"Error parsing line: {line} - {e}")
     measurement_complete = True
+    return fname
 
 if __name__ == "__main__":
     measure(meas_number)
