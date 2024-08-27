@@ -111,7 +111,7 @@ def turn_off():
 
 
 def run_flask():
-    # webbrowser.open('http://0.0.0.0:8080')
+    webbrowser.open('http://0.0.0.0:8080')
     pump.init()
     app.run(host='0.0.0.0', port=8080, debug=True)
 
