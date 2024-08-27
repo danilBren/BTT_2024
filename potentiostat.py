@@ -15,10 +15,10 @@ import palmsens.serial
 # Start of configuration
 ###############################################################################
 
-DEVICE_PORT = "/dev/ttyUSB0"
+DEVICE_PORT = "/dev/ttyUSB1"
 
 # Location of MethodSCRIPT file to use.
-MSCRIPT_FILE_PATH = 'swv_settings.mscr' # 'swv_settings.mscr'
+MSCRIPT_FILE_PATH = 'EmstatPico/scripts/example_advanced_swv_es4.mscr' # 'swv_settings.mscr'
 
 ###############################################################################
 # End of configuration
