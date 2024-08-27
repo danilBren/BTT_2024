@@ -32,7 +32,7 @@ def generate_random_number():
     # return random.uniform(30, 300)
     if call_count < 7:
         # Calculate the step increment based on the number of calls
-        step = (300 - 50) / 7
+        step = (300 - 50) / 5
         min_val = previous_number
         max_val = min_val + step
         number = random.uniform(min_val, max_val)
