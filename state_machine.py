@@ -16,16 +16,31 @@ file_header = potentiostat.file_header
 calibration_data_dir = 'calibration/'
 chipNumber = 5
 old_measurements = 'archive'
+call_count = 0
+previous_number = 30
 c = calib.Calibration()
 
 POTENTIOSTAT_CONNECTED = False
-PUMP_CONNECTED = False
+PUMP_CONNECTED = True
 
 def generate_random_number():
     """
-    Generates a random float number between 30 and 300.
+    Generates a random float number between 30 and 300, increasing gradually for the first 12 calls.
     """
-    return random.uniform(30, 300)
+    global call_count, previous_number
+    
+    if call_count < 12:
+        # Calculate the step increment based on the number of calls
+        step = (300 - 30) / 12
+        min_val = previous_number
+        max_val = min_val + step
+        number = random.uniform(min_val, max_val)
+        previous_number = number
+    else:
+        number = random.uniform(30, 300)
+    
+    call_count += 1
+    return number
 
 def fit_model():
     """
