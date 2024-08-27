@@ -38,6 +38,7 @@ class Calibration:
             if (self.chipNums[i] in self.bs_map and self.labels[i] == 0):
                 if (self.bs_map[self.chipNums[i]] != 1):
                     print("2 values for baseine")
+                    self.bs_map[self.chipNums[i]] = -1
                 else: 
                     self.bs_map[self.chipNums[i]] = self.x[i] 
  
@@ -59,7 +60,7 @@ class Calibration:
 
     def featureFarFetched(self, Xs, labels, chipNums, Vs = None):
         self.sortByLabels(Xs, labels, chipNums, Vs)
-        target = -0.45
+        target = -0.3
         self.x = []
         for i in range(len(self.Vs)):
             V = self.Vs[i]
@@ -67,9 +68,6 @@ class Calibration:
             ind = np.argmin(differences)
             self.x.append(self.Xs[i][ind])
         
-
-        
-
     def makePolyn(self, deg):
         # make a map from chip number to base value measurement
         self.makeBaselineMap()
@@ -81,6 +79,7 @@ class Calibration:
         self.x_max, self.x_min = np.max(self.x), np.min(self.x)
         # self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
         # self.x_norm = self.x
+        print(len(self.x), len(self.labels))
         self.coeff = np.polyfit(self.x, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
         
@@ -91,7 +90,10 @@ class Calibration:
         and appends it to the list of results
         """
         self.points.append(Xs)
-        res = self.polyn(self.points[len(self.points)-1]/self.bs_map[chipNum])   
+        if (False and self.bs_map[chipNum] != -1):
+            res = self.polyn(self.points[len(self.points)-1]/self.bs_map[chipNum])   
+        else:
+            res = self.polyn(self.points[len(self.points)-1])
         self.results.append(res) 
         return res    
 
@@ -236,8 +238,10 @@ def plotData(V, I, inv, labels, chipNums, fs=26):
     for i in range(len(V)):
         color = colors[i % len(colors)]
         if not i in inv:
-            plt.plot(V[i], I[i], label=str(labels[i]) + " on chip " + str(chipNums[i]), color=color)
-        
+            try:
+                plt.plot(V[i], I[i], label=str(labels[i]) + " on chip " + str(chipNums[i]), color=color)
+            except:
+                pass
     plt.xlabel("Volts", fontsize=fs)
     plt.ylabel("microAmp", fontsize=fs)
     plt.legend(fontsize=fs)
