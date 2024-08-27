@@ -30,9 +30,9 @@ def generate_random_number():
     global call_count, previous_number
     
     # return random.uniform(30, 300)
-    if call_count < 9:
+    if call_count < 7:
         # Calculate the step increment based on the number of calls
-        step = (300 - 50) / 12
+        step = (300 - 50) / 7
         min_val = previous_number
         max_val = min_val + step
         number = random.uniform(min_val, max_val)
@@ -147,7 +147,8 @@ def measComplete():
             ui.web_logger("Result is " + str(val))
             ui.value_updated.set()
         except:
-            ui.my_variable = generate_random_number()
+            val = generate_random_number()
+            ui.my_variable = val
             ui.web_logger("Result is " + str(val))
             ui.value_updated.set()
 
