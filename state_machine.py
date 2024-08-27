@@ -16,8 +16,6 @@ chipNumber = 26
 old_measurements = 'archive'
 c = calib.Calibration()
 
-# DEVICES_CONNECTED = False
-
 POTENTIOSTAT_CONNECTED = False
 PUMP_CONNECTED = False
 
@@ -29,8 +27,8 @@ def fit_model():
     calib.mapOverFolder(calibration_data_dir, calib.getData, V, I, inv, labels, chipNum)
     # noize = list(map(calib.getNoizeAmplitude, I)) if we're using noize as a parameter
     I_filt = [savgol_filter(i, 50, 2) for i in I]
-    # fit a model using difference between min and max as a feature
-    c.polynAmpDiff(I_filt, labels, chipNum, 1)
+    c.featureMaxVal(I_filt, labels, chipNum)
+    c.makePolyn(deg=1)
 
 def calculate_from_file(filePath):
     """
@@ -43,9 +41,9 @@ def calculate_from_file(filePath):
 
 def start():
     global prevState, nextState
-    move_all_files(res_path, old_measurements)
+    # moves all filees that may be left from previous measurements to the "archive"
+    # move_all_files(res_path, old_measurements)
     fit_model()
-    # start the frontend
     
     if PUMP_CONNECTED:
         pump.init()

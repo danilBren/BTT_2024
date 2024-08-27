@@ -105,15 +105,14 @@ def debug_info():
 
 @app.route('/device_off')
 def turn_off():
+    global off_button_pressed
     off_button_pressed = True
-
     return jsonify(result="Turning off")
 
 
 def run_flask():
-    webbrowser.open('http://0.0.0.0:8080')
-    pump.init()
     app.run(host='0.0.0.0', port=8080, debug=True)
 
 if __name__ == '__main__':
+    pump.init()
     run_flask()

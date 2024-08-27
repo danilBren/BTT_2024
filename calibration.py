@@ -67,13 +67,43 @@ class Calibration:
         self.x_norm = self.x
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
-    
-    def polynNoizeAmpl(self, Xs, labels, chinNum, deg):
-        self.sortByLabels(Xs, labels, chipNum)
+
+
+    def featureMaxVal(self, Xs, labels, chipNums):
+        self.sortByLabels(Xs, labels, chipNums)
+        X_max = [max(x) for x in self.Xs]
+        self.x = np.array(X_max)
+
+    def featureFarFetched(self, Xs, labels, chipNums, Vs = None):
+        self.sortByLabels(Xs, labels, chipNums, Vs)
+        target = -0.45
+        self.x = []
+        for i in range(len(self.Vs)):
+            V = self.Vs[i]
+            differences = np.abs(V - target)
+            ind = np.argmin(differences)
+            self.x.append(self.Xs[i][ind])
+
+    def polynNoizeAmpl(self, Xs, labels, chipNums, deg):
+        self.sortByLabels(Xs, labels, chipNums)
         self.x = np.array(list(map(np.average, Xs)))
         self.x_max, self.x_min = np.max(self.x), np.min(self.x)
         self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
         self.coeff = np.polyfit(self.x_norm, self.labels, deg=deg)
+        self.polyn = np.poly1d(self.coeff)
+
+    def makePolyn(self, deg):
+        # make a map from chip number to base value measurement
+        self.makeBaselineMap()
+        # for each value divide it by the base value measurement on the same chip
+        # for i in range(0, len(self.x)):
+        #     if (self.labels[i] != 0):
+        #         self.x[i] = self.x[i]/(self.bs_map[self.chipNums[i]])
+        # normalzie resulting values for each chip
+        self.x_max, self.x_min = np.max(self.x), np.min(self.x)
+        # self.x_norm = (self.x - self.x_min)/(self.x_max - self.x_min)
+        # self.x_norm = self.x
+        self.coeff = np.polyfit(self.x, self.labels, deg=deg)
         self.polyn = np.poly1d(self.coeff)
 
     def calculateConcentration(self, Is, chipNum):
