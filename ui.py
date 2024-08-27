@@ -75,7 +75,7 @@ def fast_flow():
     because timing for the pump is unknown - directly change pressure of the pump
     """
     web_logger("Start flow")
-    pump.setPressure(100)
+    pump.setPressure(70)
     return jsonify(result="Flow started")
 
 @app.route('/slow_flow')
