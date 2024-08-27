@@ -128,7 +128,6 @@ def measuring():
     # exit
     if potentiostat.measurement_complete:
         nextState = measComplete
-        ui.value_updated.set()
         ui.web_logger("measurement complete")
     pass
 
