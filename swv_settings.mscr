@@ -3,8 +3,8 @@ var c
 var p
 var f
 var g
-set_pgstat_chan 1
 
+set_pgstat_chan 0
 set_pgstat_mode 3
 set_max_bandwidth 40
 set_range_minmax da -600m 600m
