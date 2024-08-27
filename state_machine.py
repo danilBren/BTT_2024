@@ -29,6 +29,7 @@ def generate_random_number():
     """
     global call_count, previous_number
     
+    return random.uniform(30, 300)
     if call_count < 10:
         # Calculate the step increment based on the number of calls
         step = (300 - 30) / 12
