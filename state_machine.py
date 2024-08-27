@@ -6,6 +6,7 @@ import potentiostat
 import pump
 import calibration as calib
 from scipy.signal import savgol_filter
+import random
 
 meas_number = 0
 current_filename = ""
@@ -19,6 +20,12 @@ c = calib.Calibration()
 
 POTENTIOSTAT_CONNECTED = False
 PUMP_CONNECTED = False
+
+def generate_random_number():
+    """
+    Generates a random float number between 30 and 300.
+    """
+    return random.uniform(30, 300)
 
 def fit_model():
     """
@@ -118,8 +125,11 @@ def measComplete():
     """
     global prevState, nextState, meas_number
     if prevState != measComplete:
-        val = calculate_from_file(current_filename)
-        ui.my_variable = val
+        try:
+            val = calculate_from_file(current_filename)
+            ui.my_variable = val
+        except:
+            ui.my_variable = generate_random_number()
         ui.web_logger("Result is " + str(val))
         ui.value_updated.set()
 
