@@ -27,20 +27,11 @@ def generate_random_number():
     """
     Generates a random float number between 30 and 300, increasing gradually for the first 12 calls.
     """
-    global call_count, previous_number
-    
-    # return random.uniform(30, 300)
-    if call_count < 7:
-        # Calculate the step increment based on the number of calls
-        step = (300 - 50) / 5
-        min_val = previous_number
-        max_val = min_val + step
-        number = random.uniform(min_val, max_val)
-        previous_number = number
-    else:
-        number = random.uniform(30, 300)
-    
-    call_count += 1
+    mean = (300 + 30) / 2
+    std_dev = (300 - 30) / 6
+    number = random.gauss(mean, std_dev)
+    # Ensure the number is within the overall range
+    number = max(min(number, 300), 30)
     return number
 
 def fit_model():
