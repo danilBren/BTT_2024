@@ -8,8 +8,8 @@ store_var i 0i ja
 set_pgstat_chan 0
 set_pgstat_mode 3
 set_max_bandwidth 40
-set_range_minmax da -600m 600m
-set_range ba 59n
+set_range_minmax da -300m 400m
+set_range ba 100u
 set_autoranging ba 1n 100u
 cell_on
 #Equilibrate at -300mV and autorange for 2s prior to SWV
