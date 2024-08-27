@@ -98,7 +98,7 @@ class Calibration:
         return res    
 
     
-    def plotCalibAndPoints(self, fs=16):
+    def plotCalibAndPoints(self, fs=12):
         """
         plots data from x_norm using labels as Y value and data from 
         points_normalized using results as Y value. 
@@ -229,7 +229,7 @@ def getData(filePath: str, Volts, Curr, inval, labels, chipnum):
         labels += getLables(labels_str, n)
         chipnum += getChipNum(labels_str, n)
         
-def plotData(V, I, inv, labels, chipNums, fs=26):
+def plotData(V, I, inv, labels, chipNums, fs=12):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
     # colors = plt.get_cmap('viridis', len(I)*3) 
     # colors = list(colors_css.CSS4_COLORS.keys())
