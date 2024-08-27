@@ -28,7 +28,7 @@ def generate_random_number():
     Generates a random float number between 30 and 300, increasing gradually for the first 12 calls.
     """
     mean = (300 + 30) / 2
-    std_dev = (300 - 30) / 6
+    std_dev = (300 - 30) / 4
     number = random.gauss(mean, std_dev)
     # Ensure the number is within the overall range
     number = max(min(number, 300), 30)
